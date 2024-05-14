@@ -1,0 +1,76 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Install Git and VLC packages
+      ansible.builtin.package:
+        name:
+          - git
+          - ffmpeg
+          - v4l2loopback-dkms
+          - curl
+          - vkc
+        state: latest
+
+    - name: Create network interface
+      ansible.builtin.copy:
+        dest: /etc/network/interfaces.d/usb0.conf
+        content: |
+          allow-hotplug usb0
+          iface usb0 inet dhcp
+
+    - name: Clone repository
+      ansible.builtin.git:
+        repo: https://github.com/jschmid1/gopro_as_webcam_on_linux
+        dest: /home/dietpi
+
+    - name: Adjust install script
+      ansible.builtin.command:
+        argv:
+          - /usr/bin/sed
+          - -i
+          - 's/\/usr\/local\/sbin/\/bin/g'
+          - /home/dietpi/gopro_as_webcam_on_linux/install.sh
+    
+    - name: Execute install script
+      ansible.builtin.command: /home/dietpi/gopro_as_webcam_on_linux/install.sh
+      args:
+        creates: /bin/gopro
+
+    - name: Create gopro_webcam service
+      ansible.builtin.copy:
+        dest: /etc/network/interfaces.d/usb0.conf
+        content: |
+          [Unit]
+          Description=GoPro Webcam start script
+          After=network-online.target
+          Wants=network-online.target systemd-networkd-wait-online.service
+
+          [Service]
+          ExecStart=/usr/local/sbin/gopro webcam -a -n -f linear -p usb
+          Restart=on-failure
+          RestartSec=10s
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Create usb8 interface config
+      ansible.builtin.copy:
+        dest: /etc/network/interfaces.d/usb0.conf
+        content: |
+          allow-hotplug usb0
+          iface usb0 inet dhcp
+
+    - name: Adjust udev rules
+      ansible.builtin.command:
+        argv:
+          - /usr/bin/sed
+          - -i
+          - 's/GoPro HERO9/GoPro HERO8 Black/g'
+          - /home/dietpi/gopro_as_webcam_on_linux/60-gopro.rules
+
+    - name: Copy udev roles
+      ansible.builtin.copy:
+        remote_src: true
+        src: /home/dietpi/gopro_as_webcam_on_linux/60-gopro.rules
+        dest: /lib/udev/rules.d/60-gopro.rules

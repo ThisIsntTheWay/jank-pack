@@ -6,7 +6,7 @@ Out of the box it simply allows the use of a GoPro in webcam mode as a video dev
 Configuration/installation of other software needs to be done by the user.
 
 ## Components
-- Rasbperry Pi 4 (2GB is enough)
+- Raspberry Pi 4 (2GB is enough)
 - GoPro Hero 8
 
 > ![NOTE]  

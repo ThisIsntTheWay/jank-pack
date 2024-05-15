@@ -5,18 +5,20 @@ Designed with low parts complexity in mind.
 Out of the box it simply allows the use of a GoPro in webcam mode as a video device.  
 Configuration/installation of other software needs to be done by the user.
 
+![image](https://github.com/ThisIsntTheWay/jank-pack/assets/13659371/b5938bf8-1000-47ab-8742-8ee458a638b7)
+
 ## Components
 - Raspberry Pi 4 (2GB is enough)
 - GoPro Hero 8
 
-> ![NOTE]  
+> [!NOTE]  
 > The JankPack has only been tested with the GoPro 8!
 
 ## Usage
 Connect GoPro per USB with the SBC.  
 Afterwards, connect to the system with VNC and do your thing.
 
-> ![WARNING]  
+> [!WARNING]  
 > The OS likes to take its time to start services.  
 > Neither VNC nor GoPros webcam mode will be immediately available.
 

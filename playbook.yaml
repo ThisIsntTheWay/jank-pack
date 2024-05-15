@@ -2,14 +2,15 @@
 - hosts: all
   become: true
   tasks:
-    - name: Install Git and VLC packages
+    - name: Install dependencies
       ansible.builtin.package:
         name:
           - git
           - ffmpeg
           - v4l2loopback-dkms
+          - raspberrypi-kernel-headers
           - curl
-          - vkc
+          - vlc
         state: latest
 
     - name: Create network interface
@@ -22,33 +23,29 @@
     - name: Clone repository
       ansible.builtin.git:
         repo: https://github.com/jschmid1/gopro_as_webcam_on_linux
-        dest: /home/dietpi
+        dest: /home/dietpi/gopro_as_webcam_on_linux
+        force: true
 
-    - name: Adjust install script
-      ansible.builtin.command:
-        argv:
-          - /usr/bin/sed
-          - -i
-          - 's/\/usr\/local\/sbin/\/bin/g'
-          - /home/dietpi/gopro_as_webcam_on_linux/install.sh
-    
-    - name: Execute install script
-      ansible.builtin.command: /home/dietpi/gopro_as_webcam_on_linux/install.sh
+    - name: Install script
+      ansible.builtin.command: |
+        install -D ./gopro /bin/gopro
       args:
+        chdir: /home/dietpi/gopro_as_webcam_on_linux/
         creates: /bin/gopro
 
     - name: Create gopro_webcam service
       ansible.builtin.copy:
-        dest: /etc/network/interfaces.d/usb0.conf
+        dest: /etc/systemd/system/gopro_webcam.service
         content: |
           [Unit]
           Description=GoPro Webcam start script
           After=network-online.target
           Wants=network-online.target systemd-networkd-wait-online.service
+          StartLimitIntervalSec=0
 
           [Service]
-          ExecStart=/usr/local/sbin/gopro webcam -a -n -f linear -p usb
-          Restart=on-failure
+          ExecStart=/bin/gopro webcam -a -n -f linear -p usb
+          Restart=always
           RestartSec=10s
 
           [Install]
@@ -61,16 +58,14 @@
           allow-hotplug usb0
           iface usb0 inet dhcp
 
-    - name: Adjust udev rules
-      ansible.builtin.command:
-        argv:
-          - /usr/bin/sed
-          - -i
-          - 's/GoPro HERO9/GoPro HERO8 Black/g'
-          - /home/dietpi/gopro_as_webcam_on_linux/60-gopro.rules
-
-    - name: Copy udev roles
+    - name: Create udev rule
       ansible.builtin.copy:
-        remote_src: true
-        src: /home/dietpi/gopro_as_webcam_on_linux/60-gopro.rules
         dest: /lib/udev/rules.d/60-gopro.rules
+        content: |
+          SUBSYSTEM=="usb", ATTRS{idVendor}=="2672", ENV{ID_USB_MODEL}=="HERO8_BLACK", ACTION=="add", RUN+="systemctl start gopro_webcam"
+          SUBSYSTEM=="usb", ATTRS{idVendor}=="2672", ENV{ID_USB_MODEL}=="HERO8_BLACK", ACTION=="remove", RUN+="systemctl stop gopro_webcam"
+
+    - name: Cleanup
+      ansible.builtin.file:
+        path: /home/dietpi/gopro_as_webcam_on_linux/
+        state: absent

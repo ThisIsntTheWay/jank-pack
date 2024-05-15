@@ -1,6 +1,6 @@
 # JankPack
-A DIY streamer backpack based on an Raspberry Pi 4 running DietPi.  
-Designed to have a low parts complexity.
+A janky, hence the name, basis for a portable streaming solution based on an Raspberry Pi 4 running DietPi.  
+Designed with low parts complexity in mind.
 
 Out of the box it simply allows the use of a GoPro in webcam mode as a video device.  
 Configuration/installation of other software needs to be done by the user.

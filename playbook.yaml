@@ -51,13 +51,6 @@
           [Install]
           WantedBy=multi-user.target
 
-    - name: Create usb8 interface config
-      ansible.builtin.copy:
-        dest: /etc/network/interfaces.d/usb0.conf
-        content: |
-          allow-hotplug usb0
-          iface usb0 inet dhcp
-
     - name: Create udev rule
       ansible.builtin.copy:
         dest: /lib/udev/rules.d/60-gopro.rules

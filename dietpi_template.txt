@@ -5,10 +5,14 @@
 # - Use OpenSSH instead of Dropbear
 # - Hostname
 # - Autoinstall of select software
+# - post install script
 
 #------------------------------------------------------------------------------------------------------
 ##### DietPi-Automation settings, applied on first boot of DietPi only, ONCE! #####
 #------------------------------------------------------------------------------------------------------
+
+AUTO_SETUP_CUSTOM_SCRIPT_EXEC=1
+AUTO_SETUP_CUSTOM_SCRIPT_EXEC=https://raw.githubusercontent.com/ThisIsntTheWay/jank-pack/master/install-script.sh
 
 AUTO_SETUP_LOCALE=C.UTF-8
 AUTO_SETUP_KEYBOARD_LAYOUT=de_ch
@@ -42,7 +46,6 @@ AUTO_SETUP_HEADLESS=1
 
 AUTO_UNMASK_LOGIND=0
 
-AUTO_SETUP_CUSTOM_SCRIPT_EXEC=0
 AUTO_SETUP_BACKUP_RESTORE=0
 
 # OpenSSH
